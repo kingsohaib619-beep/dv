@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Dark Venus · Signal Pro</title>
+<meta name="description" content="Dark Venus Signal Pro — Smart Market Intelligence for forex, metals and crypto." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ============ TOAST / NOTIFICATION LAYER ============ -->
+<div class="toast-layer" id="toastLayer" aria-live="polite"></div>
+
+<!-- ============ HEADER ============ -->
+<header class="app-header" id="appHeader">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="30" height="30">
+          <polygon points="16,3 28,26 4,26" fill="none" stroke="url(#gradMark)" stroke-width="2.2" stroke-linejoin="round"/>
+          <circle cx="16" cy="18" r="3.2" fill="url(#gradMark)"/>
+          <defs>
+            <linearGradient id="gradMark" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#8b5cf6"/>
+              <stop offset="1" stop-color="#22c55e"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </span>
+      <div class="brand-text">
+        <span class="brand-name">DARK VENUS</span>
+        <span class="brand-sub" data-i18n="brandSub">SIGNAL PRO</span>
+      </div>
+    </div>
+
+    <nav class="main-nav" id="mainNav">
+      <button class="nav-link active" data-view="dashboard" data-i18n="navDashboard">Dashboard</button>
+      <button class="nav-link" data-view="dashboard" data-scroll="signalSection" data-i18n="navSignals">Signals</button>
+      <button class="nav-link" data-view="market" data-i18n="navMarket">Market</button>
+      <button class="nav-link" data-view="history" data-i18n="navHistory">History</button>
+      <button class="nav-link" data-view="settings" data-i18n="navSettings">Settings</button>
+    </nav>
+
+    <div class="header-actions">
+      <span class="market-pulse" id="headerMarketStatus">
+        <span class="pulse-dot"></span>
+        <span data-i18n="live">LIVE</span>
+      </span>
+      <button class="icon-btn hamburger" id="hamburgerBtn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile nav drawer -->
+  <nav class="mobile-nav" id="mobileNav">
+    <button class="nav-link" data-view="dashboard" data-i18n="navDashboard">Dashboard</button>
+    <button class="nav-link" data-view="dashboard" data-scroll="signalSection" data-i18n="navSignals">Signals</button>
+    <button class="nav-link" data-view="market" data-i18n="navMarket">Market</button>
+    <button class="nav-link" data-view="history" data-i18n="navHistory">History</button>
+    <button class="nav-link" data-view="settings" data-i18n="navSettings">Settings</button>
+  </nav>
+</header>
+
+<main class="app-main">
+
+  <!-- ============ DASHBOARD VIEW ============ -->
+  <section class="view active" id="view-dashboard">
+
+    <!-- Symbol / timeframe toolbar -->
+    <div class="toolbar card">
+      <div class="toolbar-row">
+        <div class="symbol-picker">
+          <button class="symbol-fav-btn" id="favBtn" aria-label="Favorite" title="Favorite">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2.5l2.9 6.6 7.1.7-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.7z"/></svg>
+          </button>
+
+          <div class="select-wrap">
+            <select id="symbolSelect" aria-label="Symbol"></select>
+          </div>
+
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24" width="15" height="15" class="search-icon"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="16" y1="16" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <input type="text" id="symbolSearch" data-i18n-ph="searchPlaceholder" placeholder="Search symbol (e.g. EUR)" autocomplete="off" />
+            <div class="search-results" id="searchResults"></div>
+          </div>
+        </div>
+
+        <div class="timeframe-group" id="timeframeGroup" role="group" aria-label="Timeframe">
+          <button class="tf-btn" data-tf="1min">1M</button>
+          <button class="tf-btn active" data-tf="5min">5M</button>
+          <button class="tf-btn" data-tf="15min">15M</button>
+          <button class="tf-btn" data-tf="30min" disabled title="Coming soon">30M</button>
+          <button class="tf-btn" data-tf="1h" disabled title="Coming soon">1H</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+
+      <!-- Left column: market card + chart -->
+      <div class="col-main">
+
+        <!-- Market card -->
+        <div class="card market-card" id="marketCard">
+          <div class="market-card-top">
+            <div class="market-id">
+              <span class="market-symbol" id="mcSymbol">XAU/USD</span>
+              <span class="market-status-pill" id="mcStatus"><span class="pulse-dot"></span><span data-i18n="live">LIVE</span></span>
+            </div>
+            <div class="market-update" id="mcUpdate">
+              <span data-i18n="lastUpdate">Last update</span>: <span id="mcUpdateTime">--:--</span>
+            </div>
+          </div>
+
+          <div class="market-card-price">
+            <span class="price-main" id="mcPrice">0.00000</span>
+            <span class="price-change" id="mcChange">+0.00%</span>
+          </div>
+
+          <div class="market-card-grid">
+            <div class="mc-stat"><span class="mc-label" data-i18n="open">Open</span><span class="mc-val" id="mcOpen">--</span></div>
+            <div class="mc-stat"><span class="mc-label" data-i18n="high">High</span><span class="mc-val" id="mcHigh">--</span></div>
+            <div class="mc-stat"><span class="mc-label" data-i18n="low">Low</span><span class="mc-val" id="mcLow">--</span></div>
+            <div class="mc-stat"><span class="mc-label" data-i18n="bid">Bid</span><span class="mc-val" id="mcBid">--</span></div>
+            <div class="mc-stat"><span class="mc-label" data-i18n="ask">Ask</span><span class="mc-val" id="mcAsk">--</span></div>
+          </div>
+        </div>
+
+        <!-- Chart card -->
+        <div class="card chart-card">
+          <div class="chart-card-head">
+            <div class="indicator-toggles" id="indicatorToggles">
+              <button class="ind-chip active" data-ind="ema9">EMA 9</button>
+              <button class="ind-chip active" data-ind="ema21">EMA 21</button>
+              <button class="ind-chip active" data-ind="ema50">EMA 50</button>
+              <button class="ind-chip active" data-ind="bb" data-i18n="bbChip">Bollinger</button>
+              <button class="ind-chip active" data-ind="rsi">RSI 14</button>
+            </div>
+            <button class="analyze-btn" id="analyzeBtn">
+              <svg viewBox="0 0 24 24" width="15" height="15"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+              <span data-i18n="analyzeNow">ANALYZE NOW</span>
+            </button>
+          </div>
+
+          <div class="chart-skeleton" id="chartSkeleton">
+            <div class="skeleton-line" data-i18n="loadingChart">Loading chart...</div>
+          </div>
+          <div id="chartContainer" class="chart-container"></div>
+
+          <div class="rsi-panel">
+            <div class="rsi-head"><span data-i18n="rsiLabel">RSI 14</span><span id="rsiValue">--</span></div>
+            <div id="rsiContainer" class="rsi-container"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right column: signal -->
+      <div class="col-side" id="signalSection">
+
+        <div class="card signal-card" id="signalCard" data-state="wait">
+          <div class="signal-skeleton" id="signalSkeleton">
+            <div class="skeleton-pulse"></div>
+            <div class="skeleton-line" data-i18n="analyzingMarket">Analyzing market...</div>
+          </div>
+
+          <div class="signal-card-content" id="signalCardContent">
+            <div class="signal-arrow" id="signalArrow">↑</div>
+            <div class="signal-label" id="signalLabel" data-i18n="sigWait">WAIT</div>
+            <div class="signal-confidence">
+              <span data-i18n="confidence">Confidence</span>
+              <strong id="signalConfidence">--%</strong>
+            </div>
+            <div class="signal-summary" id="signalSummary" data-i18n="waitDefaultReason">Waiting for a confirmed setup.</div>
+            <div class="signal-tag" id="signalTag">XAU/USD · 5M</div>
+          </div>
+        </div>
+
+        <p class="disclaimer-note">
+          <span data-i18n="confDisclaimer">Confidence is an internal technical-analysis score, not a probability of winning. It is never a guarantee of profit.</span>
+        </p>
+
+        <!-- Why this signal -->
+        <div class="card why-card">
+          <h3 class="card-title" data-i18n="whyTitle">Why this signal?</h3>
+          <ul class="why-list" id="whyList">
+            <li class="why-item pending" data-i18n="calculating">Calculating indicators...</li>
+          </ul>
+        </div>
+
+        <!-- Entry info -->
+        <div class="card entry-card">
+          <h3 class="card-title" data-i18n="entryTitle">Entry Information</h3>
+          <div class="entry-grid">
+            <div class="entry-item"><span data-i18n="currentPrice">Current Price</span><strong id="eiPrice">--</strong></div>
+            <div class="entry-item"><span data-i18n="entryZone">Suggested Entry Zone</span><strong id="eiZone">--</strong></div>
+            <div class="entry-item"><span data-i18n="support">Support</span><strong id="eiSupport">--</strong></div>
+            <div class="entry-item"><span data-i18n="resistance">Resistance</span><strong id="eiResistance">--</strong></div>
+            <div class="entry-item"><span data-i18n="trend">Trend</span><strong id="eiTrend">--</strong></div>
+            <div class="entry-item"><span data-i18n="volatility">Volatility</span><strong id="eiVolatility">--</strong></div>
+          </div>
+          <div class="risk-row">
+            <span data-i18n="riskLabel">Risk</span>
+            <span class="risk-pill" id="eiRisk" data-risk="medium" data-i18n="riskMedium">MEDIUM</span>
+          </div>
+          <p class="disclaimer-note small" data-i18n="levelsDisclaimer">These levels are technical estimates only, not guaranteed outcomes.</p>
+        </div>
+
+        <!-- Expiry timer -->
+        <div class="card timer-card">
+          <h3 class="card-title" data-i18n="expiryTitle">Signal Duration</h3>
+          <div class="timer-options" id="timerOptions">
+            <button class="timer-btn active" data-min="1">1 <span data-i18n="min">min</span></button>
+            <button class="timer-btn" data-min="5">5 <span data-i18n="min">min</span></button>
+            <button class="timer-btn" data-min="15">15 <span data-i18n="min">min</span></button>
+          </div>
+          <div class="timer-display" id="timerDisplay">01:00</div>
+          <p class="disclaimer-note small" data-i18n="timerDisclaimer">This is only an analysis session timer. No trades are executed.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MARKET SCANNER VIEW ============ -->
+  <section class="view" id="view-market">
+    <div class="card scanner-card">
+      <div class="scanner-head">
+        <h2 class="card-title" data-i18n="scannerTitle">Market Scanner</h2>
+        <div class="scanner-controls">
+          <label class="toggle-inline">
+            <input type="checkbox" id="strongOnlyToggle" />
+            <span data-i18n="strongOnly">Strong Signals Only</span>
+          </label>
+          <div class="select-wrap small">
+            <select id="scannerSort">
+              <option value="confidence" data-i18n="sortConfidence">Sort: Confidence</option>
+              <option value="symbol" data-i18n="sortSymbol">Sort: Symbol</option>
+              <option value="signal" data-i18n="sortSignal">Sort: Signal</option>
+            </select>
+          </div>
+          <button class="secondary-btn" id="scanNowBtn" data-i18n="scanNow">Scan Now</button>
+        </div>
+      </div>
+      <div class="scanner-skeleton" id="scannerSkeleton">
+        <div class="skeleton-line" data-i18n="scanningMarkets">Scanning markets...</div>
+      </div>
+      <div class="scanner-list" id="scannerList"></div>
+    </div>
+  </section>
+
+  <!-- ============ HISTORY VIEW ============ -->
+  <section class="view" id="view-history">
+
+    <div class="stats-grid">
+      <div class="card stat-card"><span class="stat-label" data-i18n="totalSignals">Total Signals</span><span class="stat-val" id="statTotal">0</span></div>
+      <div class="card stat-card buy"><span class="stat-label" data-i18n="sigBuy">BUY</span><span class="stat-val" id="statBuy">0</span></div>
+      <div class="card stat-card sell"><span class="stat-label" data-i18n="sigSell">SELL</span><span class="stat-val" id="statSell">0</span></div>
+      <div class="card stat-card wait"><span class="stat-label" data-i18n="sigWait">WAIT</span><span class="stat-val" id="statWait">0</span></div>
+      <div class="card stat-card"><span class="stat-label" data-i18n="wins">Wins</span><span class="stat-val" id="statWins">0</span></div>
+      <div class="card stat-card"><span class="stat-label" data-i18n="losses">Losses</span><span class="stat-val" id="statLosses">0</span></div>
+      <div class="card stat-card"><span class="stat-label" data-i18n="winRate">Win Rate</span><span class="stat-val" id="statWinRate">--</span></div>
+      <div class="card stat-card"><span class="stat-label" data-i18n="avgConfidence">Avg. Confidence</span><span class="stat-val" id="statAvgConf">--</span></div>
+      <div class="card stat-card"><span class="stat-label" data-i18n="currentStreak">Current Streak</span><span class="stat-val" id="statCurStreak">0</span></div>
+      <div class="card stat-card"><span class="stat-label" data-i18n="bestStreak">Best Streak</span><span class="stat-val" id="statBestStreak">0</span></div>
+    </div>
+
+    <div class="card history-card">
+      <div class="history-head">
+        <h2 class="card-title" data-i18n="historyTitle">Signal History</h2>
+        <div class="history-controls">
+          <div class="filter-group" id="historyFilter">
+            <button class="filter-btn active" data-filter="all" data-i18n="all">All</button>
+            <button class="filter-btn" data-filter="buy" data-i18n="sigBuy">BUY</button>
+            <button class="filter-btn" data-filter="sell" data-i18n="sigSell">SELL</button>
+            <button class="filter-btn" data-filter="wait" data-i18n="sigWait">WAIT</button>
+          </div>
+          <button class="secondary-btn danger" id="clearHistoryBtn" data-i18n="clearHistory">Clear History</button>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th data-i18n="time">Time</th>
+              <th data-i18n="symbolCol">Symbol</th>
+              <th data-i18n="timeframeCol">Timeframe</th>
+              <th data-i18n="signalCol">Signal</th>
+              <th data-i18n="priceCol">Price</th>
+              <th data-i18n="confidenceCol">Confidence</th>
+              <th data-i18n="resultCol">Result</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <tr class="empty-row"><td colspan="7" data-i18n="noHistory">No signals yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SETTINGS VIEW ============ -->
+  <section class="view" id="view-settings">
+    <div class="card settings-card">
+      <h2 class="card-title" data-i18n="settingsTitle">Settings</h2>
+
+      <div class="settings-row">
+        <div class="settings-label">
+          <span data-i18n="settingChartTheme">Chart theme</span>
+        </div>
+        <div class="select-wrap">
+          <select id="settingChartTheme">
+            <option value="dark" data-i18n="themeDark">Dark Venus (default)</option>
+            <option value="midnight" data-i18n="themeMidnight">Midnight Blue</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-label"><span data-i18n="settingCandleStyle">Candle style</span></div>
+        <div class="select-wrap">
+          <select id="settingCandleStyle">
+            <option value="candle" data-i18n="candleStyleCandle">Candles</option>
+            <option value="bar" data-i18n="candleStyleBar">Bars</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-row column">
+        <div class="settings-label"><span data-i18n="settingIndicators">Indicators</span></div>
+        <div class="settings-check-group">
+          <label><input type="checkbox" class="setting-ind" data-ind="ema9" checked /> EMA 9</label>
+          <label><input type="checkbox" class="setting-ind" data-ind="ema21" checked /> EMA 21</label>
+          <label><input type="checkbox" class="setting-ind" data-ind="ema50" checked /> EMA 50</label>
+          <label><input type="checkbox" class="setting-ind" data-ind="bb" checked /> <span data-i18n="bbChip">Bollinger</span></label>
+          <label><input type="checkbox" class="setting-ind" data-ind="rsi" checked /> RSI 14</label>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-label"><span data-i18n="settingAutoRefresh">Auto refresh</span></div>
+        <label class="switch">
+          <input type="checkbox" id="settingAutoRefresh" checked />
+          <span class="switch-track"><span class="switch-thumb"></span></span>
+        </label>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-label"><span data-i18n="settingSound">Sound notifications</span></div>
+        <label class="switch">
+          <input type="checkbox" id="settingSound" />
+          <span class="switch-track"><span class="switch-thumb"></span></span>
+        </label>
+      </div>
+
+      <div class="settings-row column">
+        <div class="settings-label">
+          <span data-i18n="settingThreshold">Signal threshold</span>
+          <span class="settings-hint" id="thresholdValue">70</span>
+        </div>
+        <input type="range" id="settingThreshold" min="50" max="90" value="70" step="1" class="range-input" />
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-label"><span data-i18n="settingLanguage">Language</span></div>
+        <div class="select-wrap">
+          <select id="settingLanguage">
+            <option value="ar" data-i18n="langArabic">العربية</option>
+            <option value="en" data-i18n="langEnglish">English</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  <div class="footer-inner">
+    <span class="footer-brand">Dark Venus Signal PRO</span>
+    <span class="footer-note" data-i18n="footerNote">Technical analysis only. Trading involves risk.</span>
+  </div>
+</footer>
+
+<audio id="sndBuy" preload="none">
+  <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=" type="audio/wav">
+</audio>
+<audio id="sndSell" preload="none">
+  <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=" type="audio/wav">
+</audio>
+
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+# Dark Venus Signal Pro - Backend Dependencies
+#
+# The api/market.py function uses only Python's standard library
+# (urllib, json, http.server) so there are no third-party dependencies
+# to install. This file is kept intentionally empty of packages so the
+# Vercel Python runtime build stays fast and minimal.
